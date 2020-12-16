@@ -10,13 +10,21 @@ public class ElementalArtist : MonoBehaviour
     private static CharacterController characterController;
     private static Animator animator;
 
+    private AnimatorStateInfo currStateInfo;
+
+    private readonly int hashIdleWalk = Animator.StringToHash("IdleWalk");
+
+
+
     public float speed = 5f;
     public float gravity = 9.8f;
     public float jumpspeed = 10f;
     public float rotSpeed = 5f;
     public Vector3 dir;
     public float laydistance = 40;
-    bool isground = false;
+    //bool isground = false;
+
+
 
 
     void Awake()
@@ -31,31 +39,39 @@ public class ElementalArtist : MonoBehaviour
 
     }
 
+    void FixedUpdate()
+    {
+            
+    }
+
     // Update is called once per frame
     void Update()
     {
+        currStateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, laydistance))
-        {
-            isground = true;
-        }
-        else
-        {
-            isground = false;
-        }
+
+
+
+
         float mouseX = Input.GetAxis("Mouse X");
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            animator.SetTrigger("EnterCombo");
-            Debug.Log("시작");
+            if (currStateInfo.IsName("IdleWalk")) //must fix
+            {
+                animator.SetTrigger("EnterCombo");
+                Debug.Log("시작");
+            }
+            else
+            {
+                animator.SetTrigger("NextCombo");
+            }
         }
 
-        
+
         transform.Rotate(Vector3.up * rotSpeed * mouseX);
-        if (isground)
+        if (characterController.isGrounded && currStateInfo.IsName("IdleWalk"))
         {
-            
+
             float x = Input.GetAxis("Horizontal");
             float z = Input.GetAxis("Vertical");
 
@@ -64,8 +80,8 @@ public class ElementalArtist : MonoBehaviour
             dir = transform.TransformDirection(dir);
 
             dir = dir * speed;
-            
-            if(Input.GetButton("Jump"))
+
+            if (Input.GetButton("Jump"))
             {
                 dir.y = jumpspeed;
             }
@@ -79,15 +95,6 @@ public class ElementalArtist : MonoBehaviour
         animator.SetFloat("MoveZ", dir.z);
         animator.SetFloat("SpeedY", dir.y);
         animator.SetBool("IsGround", characterController.isGrounded);
-        
-
-        
-
-        
-    }
-    void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, Vector3.forward * laydistance);
 
     }
 
