@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 struct KeyTime
 {
     public float presstime;
@@ -15,41 +13,6 @@ struct KeyTime
         keycode = c;
     }
 }
-
-//struct Command 
-//{
-//    private string key;
-//    private string action;
-
-//    public Command(string s, string a)
-//    {
-//        key = s;
-//        action = a;
-//    }
-
-//    public string CommandProperty
-//    {
-//        get
-//        {
-//            return key;
-//        }
-//        private set
-//        {
-
-//        }
-//    }
-
-//    public override bool Equals(object obj)
-//    {
-//        Command parameter = (Command)obj; 
-//        if(parameter.key == key)
-//        {
-//            return true;
-//        }
-//        return false;
-//    }
-//}
-
 
 
 public class CommandController : MonoBehaviour
@@ -79,6 +42,8 @@ public class CommandController : MonoBehaviour
         CommandDict.Add("WDDAS", "소환하기");
         CommandDict.Add("SS", "뒤로구르기");
         CommandDict.Add("AWDS", "딴짓하기");
+        CommandDict.Add("WAD", "이걸못찾네병신");
+
 
     }
 

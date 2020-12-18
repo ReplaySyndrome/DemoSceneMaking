@@ -13,7 +13,13 @@ public class ElementalArtist : MonoBehaviour
     private AnimatorStateInfo currStateInfo;
 
     private readonly int hashIdleWalk = Animator.StringToHash("IdleWalk");
+    private readonly int hashCombo1 = Animator.StringToHash("Combo1");
+    private readonly int hashCombo2 = Animator.StringToHash("Combo2");
+    private readonly int hashCombo3 = Animator.StringToHash("Combo3");
 
+    private CommandSystem commandSystem;
+
+    
 
 
     public float speed = 5f;
@@ -22,8 +28,12 @@ public class ElementalArtist : MonoBehaviour
     public float rotSpeed = 5f;
     public Vector3 dir;
     public float laydistance = 40;
-    //bool isground = false;
 
+    [Header("Must Set Same Size")]
+    [Tooltip("Please Fill In Animator Parameter Name")]
+    public string[] skillNameArray;
+    [Tooltip("Please Fill In Command Under 10")]
+    public string[] commandArray;
 
 
 
@@ -31,18 +41,21 @@ public class ElementalArtist : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+        commandSystem = GetComponent<CommandSystem>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-    void FixedUpdate()
-    {
+        if(skillNameArray.Length == commandArray.Length)
+        {
+            Debug.Log("커맨드 생성");
+            commandSystem.SetCommand(ref skillNameArray, ref commandArray); 
             
+        }
+        commandSystem.PrintDict();
     }
+
 
     // Update is called once per frame
     void Update()
@@ -50,16 +63,18 @@ public class ElementalArtist : MonoBehaviour
         currStateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
 
-
-
-
         float mouseX = Input.GetAxis("Mouse X");
+        transform.Rotate(Vector3.up * rotSpeed * mouseX);
+
+
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("시작");
             if (currStateInfo.IsName("IdleWalk")) //must fix
             {
-                animator.SetTrigger("EnterCombo");
-                Debug.Log("시작");
+                
+                commandSystem.FindCommand();
+                
             }
             else
             {
@@ -68,7 +83,7 @@ public class ElementalArtist : MonoBehaviour
         }
 
 
-        transform.Rotate(Vector3.up * rotSpeed * mouseX);
+        
         if (characterController.isGrounded && currStateInfo.IsName("IdleWalk"))
         {
 
@@ -95,7 +110,6 @@ public class ElementalArtist : MonoBehaviour
         animator.SetFloat("MoveZ", dir.z);
         animator.SetFloat("SpeedY", dir.y);
         animator.SetBool("IsGround", characterController.isGrounded);
-
     }
 
 
