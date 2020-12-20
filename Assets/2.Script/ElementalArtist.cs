@@ -6,20 +6,12 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class ElementalArtist : MonoBehaviour
 {
-
+    //
     private static CharacterController characterController;
     private static Animator animator;
-
-    private AnimatorStateInfo currStateInfo;
-
-    private readonly int hashIdleWalk = Animator.StringToHash("IdleWalk");
-    private readonly int hashCombo1 = Animator.StringToHash("Combo1");
-    private readonly int hashCombo2 = Animator.StringToHash("Combo2");
-    private readonly int hashCombo3 = Animator.StringToHash("Combo3");
-
     private CommandSystem commandSystem;
 
-    
+    private AnimatorStateInfo currStateInfo;
 
 
     public float speed = 5f;
@@ -27,15 +19,12 @@ public class ElementalArtist : MonoBehaviour
     public float jumpspeed = 10f;
     public float rotSpeed = 5f;
     public Vector3 dir;
-    public float laydistance = 40;
 
-    [Header("Must Set Same Size")]
+    [Header("Must Set Same Size")]//고쳐야함니다.
     [Tooltip("Please Fill In Animator Parameter Name")]
     public string[] skillNameArray;
     [Tooltip("Please Fill In Command Under 10")]
     public string[] commandArray;
-
-
 
     void Awake()
     {
@@ -49,9 +38,12 @@ public class ElementalArtist : MonoBehaviour
     {
         if(skillNameArray.Length == commandArray.Length)
         {
-            Debug.Log("커맨드 생성");
             commandSystem.SetCommand(ref skillNameArray, ref commandArray); 
             
+        }
+        else
+        {
+            throw new System.Exception("스킬배열의 길이와 커맨드배열의 길이가 다릅니다. 둘의 길이가 같도록 수정해 주세요.");
         }
         commandSystem.PrintDict();
     }
@@ -60,30 +52,43 @@ public class ElementalArtist : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        currStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        GetCurAnimatorStateCache();
+        PlayerRotate();
+        CheckMouseInput();
+        PlayerMove();
+        SetAnimatorParameter();
+    }
 
-
+    void PlayerRotate()
+    {
         float mouseX = Input.GetAxis("Mouse X");
         transform.Rotate(Vector3.up * rotSpeed * mouseX);
+    }
 
+    void GetCurAnimatorStateCache()
+    {
+        currStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+    }
 
+    void CheckMouseInput()
+    {
         if (Input.GetMouseButtonDown(0))
+        //키가 여러가지가 있죠.
+        //여기서는 왼쪽키만 사용했지만 마우스 중간버튼, 오른쪽버튼도 하려면 배열로 처리하면 될 것 같습니다.
         {
-            Debug.Log("시작");
             if (currStateInfo.IsName("IdleWalk")) //must fix
             {
-                
                 commandSystem.FindCommand();
-                
             }
             else
             {
                 animator.SetTrigger("NextCombo");
             }
         }
+    }
 
-
-        
+    void PlayerMove()
+    {
         if (characterController.isGrounded && currStateInfo.IsName("IdleWalk"))
         {
 
@@ -100,17 +105,23 @@ public class ElementalArtist : MonoBehaviour
             {
                 dir.y = jumpspeed;
             }
+        }
 
+        if (characterController.isGrounded && !currStateInfo.IsName("IdleWalk"))
+        {
+            dir = new Vector3(0, 0, 0);
         }
 
         dir.y -= gravity * Time.deltaTime;
         characterController.Move(dir * Time.deltaTime);
+    }
 
+    void SetAnimatorParameter()
+    {
         animator.SetFloat("MoveX", dir.x);
         animator.SetFloat("MoveZ", dir.z);
         animator.SetFloat("SpeedY", dir.y);
         animator.SetBool("IsGround", characterController.isGrounded);
     }
-
 
 }

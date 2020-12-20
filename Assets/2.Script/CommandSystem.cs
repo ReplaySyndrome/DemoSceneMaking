@@ -20,6 +20,11 @@ public class CommandSystem : MonoBehaviour
     private const int mouseRightButtonCode = 2;
 
 
+    void Awake()
+    {
+        commandDict = new Dictionary<string, int>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,7 +34,7 @@ public class CommandSystem : MonoBehaviour
             Debug.Log("못찾았누");
         }
         keyboardAxisList = new List<KeyValuePair<float, char>>();
-        commandDict = new Dictionary<string, int>();
+        //commandDict = new Dictionary<string, int>();
         axisArray = new char[4] { 'w', 'a', 's', 'd' } ;
     }
 
@@ -41,12 +46,6 @@ public class CommandSystem : MonoBehaviour
 
     void FixedUpdate()
     {
-        //string s = "";
-        //foreach (var i in keyboardAxisList)
-        //{
-        //    s += i.Key.ToString() + " " + i.Value.ToString() + " ";
-        //}
-        //Debug.Log(s);
         ListCheck();
     }
 
@@ -108,10 +107,10 @@ public class CommandSystem : MonoBehaviour
 
     public void SetCommand(ref string[] skillNameArray,ref string[] commandArray ) // 반드시고쳐야한다 inspector에 반드시 pair로 노출시킨다.
     {
-        for(int i=0;i<skillNameArray.Length;++i) // 둘이 길이가 같은지 계산하고 넘어오니깐 상관없다
+        Debug.Log(skillNameArray[0] + "," + commandArray[0]);
+        for (int i=0;i<skillNameArray.Length;++i) // 둘이 길이가 같은지 계산하고 넘어오니깐 상관없다
         {
             commandDict.Add(commandArray[i], Animator.StringToHash(skillNameArray[i]));
-            Debug.Log(commandArray[i] + " " + skillNameArray[i]);
         }
     }
 
@@ -119,43 +118,33 @@ public class CommandSystem : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(mouseLeftButtonCode))
         {
-
-            string s = "";
-            foreach (var i in keyboardAxisList)
-            {
-                s +=  i.Value.ToString() + " ";
-            }
-            Debug.Log(s);
             string keylist = "";
             foreach (var c in keyboardAxisList)
             {
                 keylist += c.Value;
             }
+
+            keyboardAxisList.ToString();
             string tofindcommandstring = "";
-            string invokeCommand = null;
+            string invokeCommand = "";
 
-            for (int i = keylist.Length - 1; i >= 0; --i) //뒤에서 부터 검사합니다.
+            for (int i = keylist.Length - 1; i >= 0; --i) //뒤에서 부터 검사합니다. O(n) ContainsKey == O(1)
             {
-                tofindcommandstring = keylist[i] + tofindcommandstring;
-                foreach (var dict in commandDict)
+                tofindcommandstring = keylist[i] + tofindcommandstring;               
+                if (commandDict.ContainsKey(tofindcommandstring))
+                    //찾아도 빠져나가지 않습니다. 더 긴 커맨드가 있을 수 있으니까요                    
                 {
-                    if (dict.Key.Equals(tofindcommandstring))
-                    {
-
-                        invokeCommand = tofindcommandstring;
-                    }
+                    invokeCommand = tofindcommandstring;
                 }
-  
             }
 
-            Debug.Log(invokeCommand);
-            if (invokeCommand != null)
-            {
-                
-                //Debug.Log(commandDict[invokeCommand]); //이부분을 위해서 Dict로 했습니다. 여기서라도 빨리찾아야죠.
-                playerAnimator.SetTrigger(commandDict[invokeCommand]);
-                keyboardAxisList.Clear();
-            }
+            
+
+            //이렇게 해두면 추적이 어려울것 같은데 커맨드 없이 공격하는 스킬을 위해서는 어쩔수 없을 것 같습니다.
+            //나중에 좋은 생각이 나면 수정해드리겠습니다.
+            playerAnimator.SetTrigger(commandDict[invokeCommand]);
+            keyboardAxisList.Clear();
+            
         }
     }
 }
