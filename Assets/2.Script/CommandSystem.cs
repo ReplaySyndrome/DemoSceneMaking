@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 public class CommandSystem : MonoBehaviour
 {
     private List<KeyValuePair<float, char>> keyboardAxisList;
@@ -13,12 +13,12 @@ public class CommandSystem : MonoBehaviour
     private char[] axisArray;
 
     private Animator playerAnimator;
+    
 
 
     private const int mouseLeftButtonCode = 0;
     private const int mouseMiddleButtonCode = 1;
     private const int mouseRightButtonCode = 2;
-
 
     void Awake()
     {
@@ -105,7 +105,8 @@ public class CommandSystem : MonoBehaviour
         }
     }
 
-    public void SetCommand(ref string[] skillNameArray,ref string[] commandArray ) // 반드시고쳐야한다 inspector에 반드시 pair로 노출시킨다.
+    public void SetCommand(ref string[] skillNameArray,ref string[] commandArray ) 
+    // 반드시고쳐야한다 inspector에 반드시 pair로 노출시킨다.
     {
         Debug.Log(skillNameArray[0] + "," + commandArray[0]);
         for (int i=0;i<skillNameArray.Length;++i) // 둘이 길이가 같은지 계산하고 넘어오니깐 상관없다
@@ -138,13 +139,38 @@ public class CommandSystem : MonoBehaviour
                 }
             }
 
-            
+
 
             //이렇게 해두면 추적이 어려울것 같은데 커맨드 없이 공격하는 스킬을 위해서는 어쩔수 없을 것 같습니다.
             //나중에 좋은 생각이 나면 수정해드리겠습니다.
-            playerAnimator.SetTrigger(commandDict[invokeCommand]);
+            if (commandDict.ContainsKey(invokeCommand))
+            {
+                playerAnimator.SetTrigger(commandDict[invokeCommand]);
+            }
             keyboardAxisList.Clear();
             
         }
+    }
+
+    public void ReSetCommand(string[] skillNamearr, ref UnityEngine.UI.InputField[] inputFields)
+    // 첫번째 변수는 프로퍼티로 가져오는데 ref 한정자로 가져올수가 없네요 어쩔 수 없이 복사복을 생성합니다. 
+    // 이제생각해보니 복사본이 더 안전한 것 같기도하네요.
+    // 이거 중복검사를 해야하는데 아 그냥합시다. 알아서잘하겠지
+    {
+        commandDict.Clear();
+
+        foreach(var i in inputFields)
+        {
+            Debug.Log(i.text);
+        }
+
+
+        for (int i = 0; i < skillNamearr.Length; ++i) // 둘이 길이가 같은지 계산하고 넘어오니깐 상관없다
+        {
+            commandDict.Add(inputFields[i].text, Animator.StringToHash(skillNamearr[i]));
+        }
+
+        
+
     }
 }

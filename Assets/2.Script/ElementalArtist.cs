@@ -26,6 +26,15 @@ public class ElementalArtist : MonoBehaviour
     [Tooltip("Please Fill In Command Under 10")]
     public string[] commandArray;
 
+    public string[] GetSkillNameArray
+    {
+        get
+        {
+            return skillNameArray;
+        }
+    }
+
+
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
@@ -53,7 +62,7 @@ public class ElementalArtist : MonoBehaviour
     void Update()
     {
         GetCurAnimatorStateCache();
-        PlayerRotate();
+        
         CheckMouseInput();
         PlayerMove();
         SetAnimatorParameter();
@@ -98,7 +107,7 @@ public class ElementalArtist : MonoBehaviour
             dir = new Vector3(x, 0, z);
 
             dir = transform.TransformDirection(dir);
-
+            PlayerRotate();
             dir = dir * speed;
 
             if (Input.GetButton("Jump"))
@@ -122,6 +131,22 @@ public class ElementalArtist : MonoBehaviour
         animator.SetFloat("MoveZ", dir.z);
         animator.SetFloat("SpeedY", dir.y);
         animator.SetBool("IsGround", characterController.isGrounded);
+    }
+
+    public void GetCommand(ref UnityEngine.UI.InputField[] inputfields)
+    {
+        for(int i=0;i<commandArray.Length;++i)
+        {
+            inputfields[i].text = commandArray[i];
+        }
+    }
+
+    public void ResetCommandArray(ref UnityEngine.UI.InputField[] inputfields)
+    {
+        for(int i=0;i<inputfields.Length;++i)
+        {
+            commandArray[i] = inputfields[i].text;
+        }
     }
 
 }
