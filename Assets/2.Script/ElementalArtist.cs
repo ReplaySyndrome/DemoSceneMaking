@@ -20,6 +20,10 @@ public class ElementalArtist : MonoBehaviour
     public float rotSpeed = 5f;
     public Vector3 dir;
 
+
+    private bool canAirCombo = true;
+
+
     [Header("Must Set Same Size")]//고쳐야함니다.
     [Tooltip("Please Fill In Animator Parameter Name")]
     public string[] skillNameArray;
@@ -61,8 +65,7 @@ public class ElementalArtist : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GetCurAnimatorStateCache();
-        
+        GetCurAnimatorStateCache();        
         CheckMouseInput();
         PlayerMove();
         SetAnimatorParameter();
@@ -89,6 +92,15 @@ public class ElementalArtist : MonoBehaviour
             {
                 commandSystem.FindCommand();
             }
+
+            else if(currStateInfo.IsName("Jump") || currStateInfo.IsName("Fall"))
+            {
+                if (canAirCombo)
+                {
+                    canAirCombo = false;
+                    animator.SetTrigger("AirCombo1");
+                }
+            }
             else
             {
                 animator.SetTrigger("NextCombo");
@@ -98,6 +110,7 @@ public class ElementalArtist : MonoBehaviour
 
     void PlayerMove()
     {
+        
         if (characterController.isGrounded && currStateInfo.IsName("IdleWalk"))
         {
 
@@ -109,14 +122,21 @@ public class ElementalArtist : MonoBehaviour
             dir = transform.TransformDirection(dir);
             PlayerRotate();
             dir = dir * speed;
-
+            canAirCombo = true;
             if (Input.GetButton("Jump"))
             {
                 dir.y = jumpspeed;
+                animator.SetTrigger("Jump");
             }
         }
 
         if (characterController.isGrounded && !currStateInfo.IsName("IdleWalk"))
+        {
+            canAirCombo = true;
+            dir = new Vector3(0, 0, 0);
+        }
+
+        if(currStateInfo.IsTag("InAir"))
         {
             dir = new Vector3(0, 0, 0);
         }
