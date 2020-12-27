@@ -1,7 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
+
+
+
+
 public class CommandSystem : MonoBehaviour
 {
     private List<KeyValuePair<float, char>> keyboardAxisList;
@@ -20,6 +26,15 @@ public class CommandSystem : MonoBehaviour
     private const int mouseMiddleButtonCode = 1;
     private const int mouseRightButtonCode = 2;
 
+    public List<KeyValuePair<float, char>> GetInputAxisList
+    {
+        get
+        {
+            return keyboardAxisList;
+        }
+    }
+
+
     void Awake()
     {
         commandDict = new Dictionary<string, int>();
@@ -29,12 +44,7 @@ public class CommandSystem : MonoBehaviour
     void Start()
     {
         playerAnimator = GameObject.FindGameObjectWithTag("Player").GetComponent<Animator>();
-        if(!playerAnimator)
-        {
-            Debug.Log("못찾았누");
-        }
         keyboardAxisList = new List<KeyValuePair<float, char>>();
-        //commandDict = new Dictionary<string, int>();
         axisArray = new char[4] { 'w', 'a', 's', 'd' } ;
     }
 
@@ -152,25 +162,34 @@ public class CommandSystem : MonoBehaviour
         }
     }
 
-    public void ReSetCommand(string[] skillNamearr, ref UnityEngine.UI.InputField[] inputFields)
+    public bool ReSetCommand(string[] skillNamearr, ref UnityEngine.UI.InputField[] inputFields)
     // 첫번째 변수는 프로퍼티로 가져오는데 ref 한정자로 가져올수가 없네요 어쩔 수 없이 복사복을 생성합니다. 
     // 이제생각해보니 복사본이 더 안전한 것 같기도하네요.
-    // 이거 중복검사를 해야하는데 아 그냥합시다. 알아서잘하겠지
     {
-        commandDict.Clear();
+        HashSet<string> chechSet = new HashSet<string>();
 
-        foreach(var i in inputFields)
+
+        foreach (var i in inputFields)
         {
-            Debug.Log(i.text);
+            bool isoverlap = !chechSet.Add(i.text);
+            if(isoverlap)
+            {
+                Debug.Log("커맨드 설정 실패!\n동일한 커맨드가 존재합니다.");
+                return false;
+            }
         }
 
-
+        commandDict.Clear();
         for (int i = 0; i < skillNamearr.Length; ++i) // 둘이 길이가 같은지 계산하고 넘어오니깐 상관없다
         {
             commandDict.Add(inputFields[i].text, Animator.StringToHash(skillNamearr[i]));
         }
 
         
-
+        return true;
     }
+
+    
+
+
 }

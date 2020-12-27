@@ -37,8 +37,11 @@ public class CommandSetUI : MonoBehaviour
 
     public void ResetCommand()
     {
-        player.GetComponent<CommandSystem>().ReSetCommand(player.skillNameArray, ref inputFieldArray);
-        player.ResetCommandArray(ref inputFieldArray);
+        bool isComplete = player.GetComponent<CommandSystem>().ReSetCommand(player.skillNameArray, ref inputFieldArray);
+        if (isComplete)
+        {
+            player.ResetCommandArray(ref inputFieldArray);
+        }
         player.GetCommand(ref inputFieldArray);
     }
 }
